@@ -1,8 +1,6 @@
 const express = require('express');
 const cors = require('./config/cors');
 const connectMongo = require('./config/mongo');
-const connectPostgres = require('./config/postgres');
-
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const mentorRoutes = require('./routes/mentorRoutes');
@@ -15,9 +13,9 @@ const swaggerDocument = require('./swagger.json');
 require('dotenv').config();
 
 const app = express();
+const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
-
 app.use(cors);
 
 // Swagger
@@ -33,22 +31,23 @@ app.use('/api/reviews', reviewRoutes);
 
 // Accueil
 app.get('/', (req, res) => {
-  res.send('Bienvenue sur mentor API connecté à Neon PostgreSQL et MongoDB local !');
+  res.send('Bienvenue sur mentor API local !');
 });
 
 // Gestion des erreurs
 app.use(errorHandler);
 
-// Démarrage serveur + connexions BDD
-const PORT = process.env.PORT || 5000;
-
-const startServer = async () => {
-  await connectPostgres();
-  await connectMongo();
-  
-  app.listen(PORT, () => {
-    console.log(` Server running on port ${PORT}`);
-  });
-};
+//  Start server *après* connexion MongoDB
+async function startServer() {
+  try {
+    await connectMongo();
+    app.listen(PORT, () => {
+      console.log(` Serveur lancé sur le port ${PORT}`);
+    });
+  } catch (err) {
+    console.error(' Échec de la connexion MongoDB', err);
+    process.exit(1);
+  }
+}
 
 startServer();
