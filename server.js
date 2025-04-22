@@ -1,5 +1,5 @@
 const express = require('express');
-const cors = require('./config/cors'); // Assurez-vous que le chemin est correct
+const corsOptions = require('./config/cors');
 const connectMongo = require('./config/mongo');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -16,7 +16,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
-app.use(cors);  // Utilisation du middleware CORS
+app.use(cors(corsOptions));
 
 // Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
