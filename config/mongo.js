@@ -1,7 +1,6 @@
-// config/mongo.js
 const mongoose = require('mongoose');
-require('dotenv').config();
 
+HEAD
 const mongoURI = process.env.DB_URI ;
 
 async function connectMongo() {
@@ -9,8 +8,8 @@ async function connectMongo() {
     await mongoose.connect(mongoURI); // plus besoin de passer les options
     console.log(' Connexion à MongoDB locale réussie !');
   } catch (error) {
-    console.error(' Erreur de connexion à MongoDB :', error.message);
-  }
-}
+    console.error(' Erreur de connexion à MongoDB :', error.message)};
 
-module.exports = connectMongo;
+  };
+
+module.exports = mongoose.model('User', userSchema);

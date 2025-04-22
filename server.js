@@ -1,5 +1,5 @@
 const express = require('express');
-const cors = require('./config/cors');
+const corsOptions = require('./config/cors');
 const connectMongo = require('./config/mongo');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -16,7 +16,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
-app.use(cors);
+app.use(cors(corsOptions));
 
 // Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
@@ -37,15 +37,15 @@ app.get('/', (req, res) => {
 // Gestion des erreurs
 app.use(errorHandler);
 
-//  Start server *après* connexion MongoDB
+// Start server *après* connexion MongoDB
 async function startServer() {
   try {
     await connectMongo();
     app.listen(PORT, () => {
-      console.log(` Serveur lancé sur le port ${PORT}`);
+      console.log(`Serveur lancé sur le port ${PORT}`);
     });
   } catch (err) {
-    console.error(' Échec de la connexion MongoDB', err);
+    console.error('Échec de la connexion MongoDB', err);
     process.exit(1);
   }
 }

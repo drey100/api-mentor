@@ -1,9 +1,17 @@
-const cors = require('cors');
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://api-mentor-j226.onrender.com'
+];
 
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS policy: Origin not allowed'));
+    }
+  },
+  credentials: true,
 };
 
-module.exports = cors(corsOptions);
+module.exports = corsOptions;
