@@ -1,15 +1,15 @@
 const mongoose = require('mongoose');
+require('dotenv').config(); // Pour charger les variables d'environnement
 
-HEAD
-const mongoURI = process.env.DB_URI ;
+const uri = process.env.DB_URI;
 
-async function connectMongo() {
+async function connectToDatabase() {
   try {
-    await mongoose.connect(mongoURI); // plus besoin de passer les options
-    console.log(' Connexion à MongoDB locale réussie !');
-  } catch (error) {
-    console.error(' Erreur de connexion à MongoDB :', error.message)};
+    await mongoose.connect(uri);
+    console.log("Connexion à MongoDB avec Mongoose réussie !");
+  } catch (err) {
+    console.error(" Erreur de connexion à MongoDB :", err.message);
+  }
+}
 
-  };
-
-module.exports = mongoose.model('User', userSchema);
+module.exports = connectToDatabase;
