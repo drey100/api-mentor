@@ -1,445 +1,463 @@
 {
-    "openapi": "3.0.0",
-    "info": {
-      "title": "Mon Mentor API",
-      "description": "API pour la plateforme de mise en relation entre mentors et utilisateurs.",
-      "version": "1.0.0"
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Mon Mentor API",
+    "description": "API complète pour la plateforme de mentorat avec authentification JWT, gestion des utilisateurs, mentors, sessions, messages et avis.",
+    "version": "1.0.0",
+    "contact": {
+      "email": "support@mentorapi.com"
     },
-    "servers": [
-      {
-        "url": "http://localhost:5000",
-        "description": "Serveur local"
-      }
-    ],
-    "tags": [
-      { "name": "Auth", "description": "Opérations d'authentification" },
-      { "name": "Users", "description": "Gestion des utilisateurs" },
-      { "name": "Mentors", "description": "Gestion des mentors" },
-      { "name": "Sessions", "description": "Gestion des sessions" },
-      { "name": "Messages", "description": "Gestion des messages" },
-      { "name": "Reviews", "description": "Gestion des avis" }
-    ],
-    "paths": {
-      "/auth/register": {
-        "post": {
-          "tags": ["Auth"],
-          "summary": "Inscription d'un utilisateur",
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "firstName": { "type": "string" },
-                    "lastName": { "type": "string" },
-                    "email": { "type": "string", "format": "email" },
-                    "password": { "type": "string", "format": "password" },
-                    "role": { "type": "string", "enum": ["user", "mentor"] }
-                  },
-                  "required": ["firstName", "lastName", "email", "password", "role"]
-                }
-              }
-            }
-          },
-          "responses": {
-            "201": {
-              "description": "Utilisateur inscrit avec succès",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": { "type": "string" }
-                    }
-                  }
-                }
-              }
-            },
-            "400": {
-              "description": "Requête invalide (ex. email déjà utilisé)"
-            }
-          }
-        }
-      },
-      "/auth/login": {
-        "post": {
-          "tags": ["Auth"],
-          "summary": "Connexion d'un utilisateur",
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "email": { "type": "string", "format": "email" },
-                    "password": { "type": "string", "format": "password" }
-                  },
-                  "required": ["email", "password"]
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Connexion réussie",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "token": { "type": "string" }
-                    }
-                  }
-                }
-              }
-            },
-            "401": {
-              "description": "Identifiants invalides"
-            }
-          }
-        }
-      },
-      "/users/profile": {
-        "get": {
-          "tags": ["Users"],
-          "summary": "Obtenir le profil de l'utilisateur connecté",
-          "security": [{ "bearerAuth": [] }],
-          "responses": {
-            "200": {
-              "description": "Profil de l'utilisateur récupéré avec succès",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "firstName": { "type": "string" },
-                      "lastName": { "type": "string" },
-                      "email": { "type": "string" },
-                      "role": { "type": "string" }
-                    }
-                  }
-                }
-              }
-            },
-            "401": {
-              "description": "Non autorisé (token manquant ou invalide)"
-            }
-          }
-        },
-        "put": {
-          "tags": ["Users"],
-          "summary": "Mettre à jour le profil de l'utilisateur connecté",
-          "security": [{ "bearerAuth": [] }],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "firstName": { "type": "string" },
-                    "lastName": { "type": "string" },
-                    "email": { "type": "string", "format": "email" }
-                  },
-                  "required": ["firstName", "lastName", "email"]
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Profil mis à jour avec succès"
-            },
-            "401": {
-              "description": "Non autorisé (token manquant ou invalide)"
-            }
-          }
-        },
-        "delete": {
-          "tags": ["Users"],
-          "summary": "Supprimer le compte de l'utilisateur connecté",
-          "security": [{ "bearerAuth": [] }],
-          "responses": {
-            "200": {
-              "description": "Compte supprimé avec succès"
-            },
-            "401": {
-              "description": "Non autorisé (token manquant ou invalide)"
-            }
-          }
-        }
-      },
-      "/mentors": {
-        "get": {
-          "tags": ["Mentors"],
-          "summary": "Liste des mentors",
-          "responses": {
-            "200": {
-              "description": "Liste des mentors récupérée avec succès",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "id": { "type": "string" },
-                        "firstName": { "type": "string" },
-                        "lastName": { "type": "string" },
-                        "specialty": { "type": "string" }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "post": {
-          "tags": ["Mentors"],
-          "summary": "Créer un profil mentor",
-          "security": [{ "bearerAuth": [] }],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "specialty": { "type": "string" },
-                    "bio": { "type": "string" },
-                    "photo": { "type": "string" }
-                  },
-                  "required": ["specialty"]
-                }
-              }
-            }
-          },
-          "responses": {
-            "201": {
-              "description": "Profil mentor créé avec succès"
-            },
-            "401": {
-              "description": "Non autorisé (token manquant ou invalide)"
-            }
-          }
-        }
-      },
-      "/mentors/{id}": {
-        "get": {
-          "tags": ["Mentors"],
-          "summary": "Profil détaillé d'un mentor",
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "description": "ID du mentor",
-              "required": true,
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000",
+      "description": "Serveur de développement"
+    },
+    {
+      "url": "https://api.mentorapp.com/v1",
+      "description": "Serveur de production" 
+    }
+  ],
+  "tags": [
+    { 
+      "name": "Auth", 
+      "description": "Authentification des utilisateurs" 
+    },
+    { 
+      "name": "Users", 
+      "description": "Opérations sur les profils utilisateurs" 
+    },
+    { 
+      "name": "Mentors", 
+      "description": "Gestion des mentors et de leurs spécialités" 
+    },
+    { 
+      "name": "Sessions", 
+      "description": "Réservation et gestion des sessions" 
+    },
+    { 
+      "name": "Messages", 
+      "description": "Messagerie entre utilisateurs" 
+    },
+    { 
+      "name": "Reviews", 
+      "description": "Avis et évaluations des mentors" 
+    }
+  ],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Inscription d'un nouvel utilisateur",
+        "description": "Permet à un nouvel utilisateur (user ou mentor) de créer un compte",
+        "operationId": "registerUser",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
               "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Profil mentor récupéré avec succès"
-            },
-            "404": {
-              "description": "Mentor non trouvé"
-            }
-          }
-        },
-        "put": {
-          "tags": ["Mentors"],
-          "summary": "Mettre à jour un profil mentor",
-          "security": [{ "bearerAuth": [] }],
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "description": "ID du mentor",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "specialty": { "type": "string" },
-                    "bio": { "type": "string" },
-                    "photo": { "type": "string" }
+                "$ref": "#/components/schemas/UserRegister"
+              },
+              "examples": {
+                "user": {
+                  "value": {
+                    "firstName": "Jean",
+                    "lastName": "Dupont",
+                    "email": "jean.dupont@example.com",
+                    "password": "MotDePasse123!",
+                    "role": "user"
+                  }
+                },
+                "mentor": {
+                  "value": {
+                    "firstName": "Marie",
+                    "lastName": "Martin",
+                    "email": "marie.martin@example.com",
+                    "password": "MotDePasse123!",
+                    "role": "mentor"
                   }
                 }
               }
             }
-          },
-          "responses": {
-            "200": {
-              "description": "Profil mentor mis à jour avec succès"
-            },
-            "401": {
-              "description": "Non autorisé (token manquant ou invalide)"
-            }
           }
         },
-        "delete": {
-          "tags": ["Mentors"],
-          "summary": "Supprimer un profil mentor",
-          "security": [{ "bearerAuth": [] }],
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "description": "ID du mentor",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Profil mentor supprimé avec succès"
-            },
-            "401": {
-              "description": "Non autorisé (token manquant ou invalide)"
-            }
-          }
-        }
-      },
-      "/sessions/book": {
-        "post": {
-          "tags": ["Sessions"],
-          "summary": "Réserver une session",
-          "security": [{ "bearerAuth": [] }],
-          "requestBody": {
-            "required": true,
+        "responses": {
+          "201": {
+            "description": "Compte créé avec succès",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "mentorId": { "type": "string" },
-                    "date": { "type": "string", "format": "date-time" }
-                  },
-                  "required": ["mentorId", "date"]
+                  "$ref": "#/components/schemas/SuccessMessage"
                 }
               }
             }
           },
-          "responses": {
-            "201": {
-              "description": "Session réservée avec succès"
-            },
-            "401": {
-              "description": "Non autorisé (token manquant ou invalide)"
-            }
-          }
-        }
-      },
-      "/sessions/confirm/{id}": {
-        "put": {
-          "tags": ["Sessions"],
-          "summary": "Confirmer une session",
-          "security": [{ "bearerAuth": [] }],
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "description": "ID de la session",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Session confirmée avec succès"
-            },
-            "401": {
-              "description": "Non autorisé (token manquant ou invalide)"
-            }
-          }
-        }
-      },
-      "/messages": {
-        "post": {
-          "tags": ["Messages"],
-          "summary": "Envoyer un message",
-          "security": [{ "bearerAuth": [] }],
-          "requestBody": {
-            "required": true,
+          "400": {
+            "description": "Requête invalide",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "receiverId": { "type": "string" },
-                    "content": { "type": "string" }
-                  },
-                  "required": ["receiverId", "content"]
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
           },
-          "responses": {
-            "201": {
-              "description": "Message envoyé avec succès"
-            },
-            "401": {
-              "description": "Non autorisé (token manquant ou invalide)"
-            }
-          }
-        }
-      },
-      "/reviews": {
-        "post": {
-          "tags": ["Reviews"],
-          "summary": "Ajouter un avis",
-          "security": [{ "bearerAuth": [] }],
-          "requestBody": {
-            "required": true,
+          "409": {
+            "description": "Email déjà utilisé",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "mentorId": { "type": "string" },
-                    "rating": { "type": "integer", "minimum": 1, "maximum": 5 },
-                    "comment": { "type": "string" }
-                  },
-                  "required": ["mentorId", "rating"]
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            }
-          },
-          "responses": {
-            "201": {
-              "description": "Avis ajouté avec succès"
-            },
-            "401": {
-              "description": "Non autorisé (token manquant ou invalide)"
             }
           }
         }
       }
     },
-    "components": {
-      "securitySchemes": {
-        "bearerAuth": {
-          "type": "http",
-          "scheme": "bearer",
-          "bearerFormat": "JWT"
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Connexion d'un utilisateur",
+        "description": "Authentification d'un utilisateur existant et récupération du token JWT",
+        "operationId": "loginUser",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLogin"
+              },
+              "examples": {
+                "regular": {
+                  "value": {
+                    "email": "jean.dupont@example.com",
+                    "password": "MotDePasse123!"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Connexion réussie",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Identifiants invalides",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/profile": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Récupérer le profil utilisateur",
+        "description": "Obtenir les informations du profil de l'utilisateur connecté",
+        "operationId": "getUserProfile",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Profil utilisateur récupéré",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfile"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Non autorisé",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Users"],
+        "summary": "Mettre à jour le profil utilisateur",
+        "description": "Modifier les informations du profil de l'utilisateur connecté",
+        "operationId": "updateUserProfile",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profil mis à jour",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requête invalide",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mentors": {
+      "get": {
+        "tags": ["Mentors"],
+        "summary": "Lister tous les mentors",
+        "description": "Récupère la liste de tous les mentors disponibles",
+        "operationId": "getAllMentors",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/specialtyParam"
+          },
+          {
+            "$ref": "#/components/parameters/limitParam"
+          },
+          {
+            "$ref": "#/components/parameters/pageParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste des mentors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MentorProfile"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT obtenu après connexion via /auth/login"
+      }
+    },
+    "schemas": {
+      "UserRegister": {
+        "type": "object",
+        "required": ["firstName", "lastName", "email", "password", "role"],
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "minLength": 2,
+            "example": "Jean"
+          },
+          "lastName": {
+            "type": "string",
+            "minLength": 2,
+            "example": "Dupont"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "jean.dupont@example.com"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "minLength": 8,
+            "example": "MotDePasse123!"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["user", "mentor"],
+            "example": "user"
+          }
+        }
+      },
+      "UserLogin": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "jean.dupont@example.com"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "example": "MotDePasse123!"
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "JWT à utiliser dans le header Authorization",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserProfile"
+          }
+        }
+      },
+      "UserProfile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "5f8d0d55b54764421b7156c3"
+          },
+          "firstName": {
+            "type": "string",
+            "example": "Jean"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Dupont"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "jean.dupont@example.com"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["user", "mentor"],
+            "example": "user"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2023-10-15T14:23:00Z"
+          }
+        }
+      },
+      "MentorProfile": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/UserProfile"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "specialty": {
+                "type": "string",
+                "example": "Développement Web"
+              },
+              "bio": {
+                "type": "string",
+                "example": "Développeur fullstack avec 10 ans d'expérience"
+              },
+              "rating": {
+                "type": "number",
+                "format": "float",
+                "minimum": 1,
+                "maximum": 5,
+                "example": 4.5
+              }
+            }
+          }
+        ]
+      },
+      "SuccessMessage": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Opération réussie"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Message d'erreur"
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": ["Le champ email est requis"]
+          }
+        }
+      }
+    },
+    "parameters": {
+      "specialtyParam": {
+        "name": "specialty",
+        "in": "query",
+        "description": "Filtrer par spécialité",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "limitParam": {
+        "name": "limit",
+        "in": "query",
+        "description": "Nombre d'éléments par page",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "default": 10
+        }
+      },
+      "pageParam": {
+        "name": "page",
+        "in": "query",
+        "description": "Numéro de page",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "default": 1
         }
       }
     }
   }
+}

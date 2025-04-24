@@ -1,27 +1,29 @@
 const express = require('express');
-const {
-  getMentors,
-  getMentorById,
-  createMentorProfile,
-  updateMentorProfile,
-  deleteMentorProfile,
-} = require('../controllers/mentorController');
-const authMiddleware = require('../middleware/authMiddleware');
 const router = express.Router();
+const mentorController = require('../controllers/mentorController');
+const { verifyToken, checkRole, ownerOnly } = require('../middleware/authMiddleware');
 
-// Liste des mentors (accessible à tous)
-router.get('/', getMentors);
+// Public routes
+router.get('/', mentorController.getMentors);
+router.get('/:id', mentorController.getMentorById);
 
-// Profil détaillé d'un mentor (accessible à tous)
-router.get('/:id', getMentorById);
+// Protected routes
+router.post('/',
+  verifyToken,
+  checkRole(['mentor', 'admin']),
+  mentorController.createMentorProfile
+);
 
-// Créer un profil mentor (protégé pour les mentors uniquement)
-router.post('/', authMiddleware, createMentorProfile);
+router.put('/:id',
+  verifyToken,
+  ownerOnly,
+  mentorController.updateMentorProfile
+);
 
-// Mettre à jour un profil mentor (protégé pour le mentor lui-même)
-router.put('/:id', authMiddleware, updateMentorProfile);
-
-// Supprimer un profil mentor (protégé pour le mentor lui-même)
-router.delete('/:id', authMiddleware, deleteMentorProfile);
+router.delete('/:id',
+  verifyToken,
+  checkRole(['admin']), // Seul l'admin peut supprimer
+  mentorController.deleteMentorProfile
+);
 
 module.exports = router;
