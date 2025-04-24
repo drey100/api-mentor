@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Le mot de passe est obligatoire'],
     minlength: [8, 'Le mot de passe doit contenir au moins 8 caractères'],
-    select: false // Ne sera pas retourné dans les queries
+    select: false
   },
   role: { 
     type: String, 
@@ -44,27 +44,39 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
     select: false
+  },
+  // Nouveaux champs ajoutés (fusionnés)
+  ratingAverage: {
+    type: Number,
+    default: 0,
+    min: [0, 'La note moyenne ne peut être inférieure à 0'],
+    max: [5, 'La note moyenne ne peut excéder 5']
+  },
+  ratingQuantity: {
+    type: Number,
+    default: 0
+  },
+  unreadMessagesCount: {
+    type: Number,
+    default: 0
   }
 }, {
-  timestamps: true, // Ajoute created_at et updated_at automatiquement
+  timestamps: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
 
-// Middleware de pré-sauvegarde pour le hashage du mot de passe
+// ===== MIDDLEWARES & MÉTHODES =====
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
-  
   this.password = await bcrypt.hash(this.password, 12);
   next();
 });
 
-// Méthode pour comparer les mots de passe
 userSchema.methods.correctPassword = async function(candidatePassword, userPassword) {
   return await bcrypt.compare(candidatePassword, userPassword);
 };
 
-// Méthode pour vérifier si le mot de passe a été changé après émission du JWT
 userSchema.methods.changedPasswordAfter = function(JWTTimestamp) {
   if (this.passwordChangedAt) {
     const changedTimestamp = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
@@ -72,5 +84,12 @@ userSchema.methods.changedPasswordAfter = function(JWTTimestamp) {
   }
   return false;
 };
+
+// ===== VIRTUALS =====
+userSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'mentor',
+  localField: '_id'
+});
 
 module.exports = mongoose.model('User', userSchema);
