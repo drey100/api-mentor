@@ -1,17 +1,13 @@
-const allowedOrigins = [
-  'http://localhost:5173',
-  'https://api-mentor-j226.onrender.com'
-];
-
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
+    // Autorise toutes les origines, y compris les requêtes sans origin (par exemple, Postman ou CURL)
+    if (!origin || true) {
+      callback(null, true); // Autorise toutes les origines
     } else {
-      callback(new Error('CORS policy: Origin not allowed'));
+      callback(new Error('CORS policy: Origin not allowed'), false);
     }
   },
-  credentials: true,
+  credentials: true, // Autorise les cookies ou les headers d'autorisation
 };
 
 module.exports = corsOptions;

@@ -1,20 +1,32 @@
 const express = require('express');
-const router = express.Router(); // Déclaration unique de router
+const router = express.Router();
 
-// Importer les contrôleurs
+// Import des contrôleurs
 const {
   getUserProfile,
   updateUserProfile,
   deleteUserProfile,
-} = require('../controllers/userController');
+} = require ('../controllers/userController');
 
-// Middleware d'authentification
-const authMiddleware = require('../middleware/authMiddleware');
-// Middleware de validation des données
-const { validateUserProfile } = require('../middleware/roleMiddleware');
-// Routes
-router.get('/profile', authMiddleware, getUserProfile); // Obtenir le profil de l'utilisateur connecté
-router.put('/profile', authMiddleware, updateUserProfile); // Mettre à jour le profil
-router.delete('/profile', authMiddleware, deleteUserProfile); // Supprimer le compte
+// Middlewares
+const auth = require('../middleware/authMiddleware');
+const { validateUserProfile } = require('../middleware/validationMiddleware');
 
-module.exports = router; // Exporter le routeur
+// Routes protégées
+router.get('/profile', 
+  auth.verifyToken,       // Vérification du token JWT
+  getUserProfile          // Obtenir le profil utilisateur
+);
+
+router.put('/profile',
+  auth.verifyToken,       // Vérification du token
+  validateUserProfile,    // Validation des données
+  updateUserProfile       // Mise à jour du profil
+);
+
+router.delete('/profile',
+  auth.verifyToken,       // Vérification du token
+  deleteUserProfile       // Suppression du compte
+);
+
+module.exports = router;
